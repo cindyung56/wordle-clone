@@ -72,4 +72,7 @@ body{
 
   #final-word{
     display: invisible;
+    color: red;
+    font-size: 20px;
+    margin: 0;
   }
