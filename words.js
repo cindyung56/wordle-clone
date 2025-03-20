@@ -1,5 +1,5 @@
 // ARRAY OF FIVE LETTER WORDS
-export const WORDS = [
+const WORDS = [
   "aback",
   "abase",
   "abate",
@@ -2310,3 +2310,5 @@ export const WORDS = [
   "zesty",
   "zonal",
 ];
+
+export default WORDS;
