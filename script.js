@@ -3,12 +3,16 @@ import { WORDS } from "./words.js";
 // CONSTANTS
 const word = WORDS[Math.floor(Math.random() * WORDS.length)];
 const NUMBER_OF_GUESSES = 6;
+const gray_letters = [];
+const yellow_letters = [];
+const green_letters = [];
+
 
 // VARIABLES
 let index = 0;
 let remainingGuesses = NUMBER_OF_GUESSES;
 let guessArr = [0, 0, 0, 0, 0];
-// console.log(word); // test, comment out later
+console.log(word); // test, comment out later
 
 // HTML Elements
 const gameBoard = document.getElementById("game-board");
@@ -32,7 +36,8 @@ function getLetterFromKeyUp(event) {
     return;
   }
   const pressedKey = String(event.key).toUpperCase();
-  pressedKey !== "ENTER" ? updateBoard(pressedKey) : submitGuess();
+  if (pressedKey !== "ENTER") updateBoard(pressedKey);
+  else if (pressedKey == "ENTER" && !guessArr.join("").includes(0)) submitGuess();
 }
 
 function getLetterFromButton(event) {
@@ -40,7 +45,8 @@ function getLetterFromButton(event) {
     return;
   }
   const pressedKey = event.target.textContent;
-  pressedKey !== "ENTER" ? updateBoard(pressedKey) : submitGuess();
+  if (pressedKey !== "ENTER") updateBoard(pressedKey);
+  else if (pressedKey == "ENTER" && !guessArr.join("").includes(0)) submitGuess();
 }
 
 function updateBoard(letter) {
@@ -51,25 +57,23 @@ function updateBoard(letter) {
     guessArr[index] = letter;
     index++;
   }
-  console.log(guessArr.join(""), index);
   updateDisplay();
 }
 
 function submitGuess() {
   const guess = guessArr.join("");
-  console.log("Guess: ", guess);
-  remainingGuesses--;
+  changeColorsAfterGuess();
   if (guess.toLowerCase() === word) {
-    console.log("Congratulations! You guessed the word!");
     remainingGuesses = 0;
     return;
-  } else{
-    console.log("Incorrect guess. You have", remainingGuesses, "guesses left.");
-    guessArr = [0,0,0,0,0];
+  } else {
+    guessArr = [0, 0, 0, 0, 0];
     index = 0;
   }
+  remainingGuesses--;
 }
 
+// update the row with the letters from guessArr
 function updateDisplay() {
   const r = document.querySelectorAll(".row")[6 - remainingGuesses];
   for (let i = 0; i < 5; i++) {
@@ -78,9 +82,40 @@ function updateDisplay() {
   }
 }
 
+function changeColorsAfterGuess() {
+  const r = document.querySelectorAll(".row")[6 - remainingGuesses];
+  const boxes = r.querySelectorAll(".letter-box");
+  for (let j = 0; j < boxes.length; j++) {
+    const l = boxes[j].textContent.toLowerCase();
+    if (l === word[j]) {
+      boxes[j].style.backgroundColor = "#6AAA64";
+      if (!green_letters.includes(l)) green_letters.push(l);
+    } else if (word.includes(l)) {
+      boxes[j].style.backgroundColor = "#D1B036";
+      if (!yellow_letters.includes(l)) yellow_letters.push(l);
+    } else {
+      boxes[j].style.backgroundColor = "grey";
+      if (!gray_letters.includes(l)) gray_letters.push(l);
+    }
+  }
+  changeColorsOnKeyboard();
+}
+
+function changeColorsOnKeyboard() {
+  const keys = document.querySelectorAll(".keyboard-button");
+  for (let i = 0; i < keys.length; i++) {
+    const l = keys[i].textContent.toLowerCase();
+    if (gray_letters.includes(l)) keys[i].style.backgroundColor = "grey";
+    else if (yellow_letters.includes(l)) keys[i].style.backgroundColor = "#D1B036";
+    else if (green_letters.includes(l)) keys[i].style.backgroundColor = "#6AAA64";
+  }
+}
+
+// event listeners
 document.addEventListener("keyup", getLetterFromKeyUp);
 for (let i = 0; i < keyButton.length; i++) {
   keyButton[i].addEventListener("click", getLetterFromButton);
 }
 
+// initialize game board
 createGameBoard();
