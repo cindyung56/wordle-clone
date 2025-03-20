@@ -5,6 +5,13 @@ body{
     flex-direction: column;
     justify-content: space-evenly;
     align-items: center;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;   
+}
+
+#title{
+    font-size: 30px;
+    text-align: center;
+    margin: 10px;
 }
 
 #game-board{
@@ -27,6 +34,11 @@ body{
     font-size: 30px;
     cursor: pointer;
     border: 2px solid grey;
+    border-radius: 5px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Clear Sans', 'Helvetica Neue', Arial, sans-serif;
 }
 
 #keyboard{
@@ -56,4 +68,8 @@ body{
 
   .keyboard-button:hover{
     background-color:azure;
+  }
+
+  #final-word{
+    display: invisible;
   }
