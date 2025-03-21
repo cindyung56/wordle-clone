@@ -1,5 +1,6 @@
 import WORDS from "./words.js";
 import letterColors from "./colors.js";
+// import "animate.css";
 
 // CONSTANTS
 const word = WORDS[Math.floor(Math.random() * WORDS.length)].toUpperCase();
@@ -28,6 +29,28 @@ function createGameBoard() {
     gameBoard.appendChild(row);
   }
 }
+
+// function from the Animate.css documentation to assign an element with an animate class
+const animateCSS = (element, animation, prefix = "animate__") =>
+  // We create a Promise and return it
+  new Promise((resolve, reject) => {
+    const animationName = `${prefix}${animation}`;
+    // const node = document.querySelector(element);
+    element.style.setProperty("--animate-duration", "0.5s");
+
+    element.classList.add(`${prefix}animated`, animationName);
+
+    // When the animation ends, we clean the classes and resolve the Promise
+    function handleAnimationEnd(event) {
+      event.stopPropagation();
+      element.classList.remove(`${prefix}animated`, animationName);
+      resolve("Animation ended");
+    }
+
+    element.addEventListener("animationend", handleAnimationEnd, {
+      once: true,
+    });
+  });
 
 /* function that looks out for a key press 
     - if there are no remaining guesses left, just return immediately to stop function
@@ -65,26 +88,31 @@ function getLetterFromButton(event) {
     - after either of those options run, call updateDisplay() to update the display on the board
 */
 function updateGameArr(letter) {
+  let backspacePressed = false;
   if ((letter === "BACKSPACE" || letter === "DEL") && index > 0) {
     index--;
     guessArr[index] = 0;
+    backspacePressed = true;
   } else if (/^[a-zA-Z]+$/.test(letter) && letter.length === 1 && index < 5) {
     guessArr[index] = letter;
     index++;
   }
-  updateDisplay();
+  updateDisplay(backspacePressed);
 }
 
 /* update the current row with the letters from guessArr 
     - for each letter box in the current row, check if guessArr[i] is a letter or 0
-    - if guessArr[i] is a letter, update the textContent of the letter box to the character in guessArr[i]
-    - if guessArr[i] is a 0, leave the letter box blank
+    - if guessArr[i] is a letter, update the textContent of the letter box to the character in guessArr[i] and animate it with the pulse animation
+    - if guessArr[i] is a 0, leave the letter box blank (will not animate due to backspacePressed)
 */
-function updateDisplay() {
+function updateDisplay(backspacePressed) {
   const r = document.querySelectorAll(".row")[6 - remainingGuesses];
   for (let i = 0; i < 5; i++) {
     const l = r.querySelectorAll(".letter-box")[i];
-    guessArr[i] !== 0 ? (l.textContent = guessArr[i]) : (l.textContent = "");
+    if (guessArr[i] !== 0) {
+      if (index - 1 === i && !backspacePressed) animateCSS(l, "pulse");
+      l.textContent = guessArr[i];
+    } else l.textContent = "";
   }
 }
 
@@ -100,7 +128,6 @@ function submitGuess() {
   changeColorsAfterGuess();
   if (guess === word) {
     remainingGuesses = 0;
-    return;
   } else {
     // reset both the guessArr and index
     guessArr = [0, 0, 0, 0, 0];
@@ -122,29 +149,32 @@ function changeColorsAfterGuess() {
   const r = document.querySelectorAll(".row")[6 - remainingGuesses];
   const boxes = r.querySelectorAll(".letter-box");
   for (let j = 0; j < boxes.length; j++) {
-    const l = boxes[j].textContent;
-    if (l === word[j]) {
-      boxes[j].style.backgroundColor = "#6AAA64";
-      letterColors[l] = "#6AAA64";
-    } else if (word.includes(l)) {
-      boxes[j].style.backgroundColor = "#D1B036";
-      if (letterColors[l] !== "#6AAA64") letterColors[l] = "#D1B036";
-    } else {
-      boxes[j].style.backgroundColor = "grey";
-      letterColors[l] = "grey";
-    }
+    setTimeout(() => {
+      animateCSS(boxes[j], "flipInX");
+      const l = boxes[j].textContent;
+      if (l === word[j]) {
+        boxes[j].style.backgroundColor = "#6AAA64";
+        letterColors[l] = "#6AAA64";
+      } else if (word.includes(l)) {
+        boxes[j].style.backgroundColor = "#D1B036";
+        if (letterColors[l] !== "#6AAA64") letterColors[l] = "#D1B036";
+      } else {
+        boxes[j].style.backgroundColor = "grey";
+        letterColors[l] = "grey";
+      }
+      changeColorsOnKeyboard(l);
+    }, 250 * j);
   }
-  changeColorsOnKeyboard();
 }
 
 /* function to change the colors of the keyboard based on the colors from the letterColors object
-    - goes through each key on the keyboard and changes the background-color of the button element with the given colors 
+    - goes through each key on the keyboard and compares it to the letter argument; if they match, changes the background-color of the button element with the given color
 */
-function changeColorsOnKeyboard() {
+function changeColorsOnKeyboard(letter) {
   const keys = document.querySelectorAll(".keyboard-button");
   for (let i = 0; i < keys.length; i++) {
     const l = keys[i].textContent;
-    keys[i].style.backgroundColor = letterColors[l];
+    if (letter === l) keys[i].style.backgroundColor = letterColors[l];
   }
 }
 
