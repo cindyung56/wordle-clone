@@ -1,6 +1,5 @@
 import WORDS from "./words.js";
 import letterColors from "./colors.js";
-// import "animate.css";
 
 // CONSTANTS
 const word = WORDS[Math.floor(Math.random() * WORDS.length)].toUpperCase();
@@ -10,7 +9,6 @@ const NUMBER_OF_GUESSES = 6;
 let index = 0;
 let remainingGuesses = NUMBER_OF_GUESSES;
 let guessArr = [0, 0, 0, 0, 0];
-console.log(word); // test, comment out later
 
 // HTML Elements
 const gameBoard = document.getElementById("game-board");
@@ -35,7 +33,6 @@ const animateCSS = (element, animation, prefix = "animate__") =>
   // We create a Promise and return it
   new Promise((resolve, reject) => {
     const animationName = `${prefix}${animation}`;
-    // const node = document.querySelector(element);
     element.style.setProperty("--animate-duration", "0.5s");
 
     element.classList.add(`${prefix}animated`, animationName);
